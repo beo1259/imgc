@@ -41,11 +41,14 @@ func isDir(path string) bool {
 
 	stat, err := os.Stat(path)
 	if err != nil {
-		if strings.Contains(filepath.Base(path), ".") {
+		if hasDot := strings.Contains(filepath.Base(path), "."); hasDot {
 			return false
-		} else {
+		} else if !hasDot {
 			os.Mkdir(path, fs.ModeDir)
 			return true
+		} else {
+			log.SetFlags(0)
+			log.Fatal(err)
 		}
 	}
 
