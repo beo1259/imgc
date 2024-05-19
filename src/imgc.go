@@ -42,6 +42,11 @@ func isDir(path string) bool {
 	stat, err := os.Stat(path)
 	if err != nil {
 		if isFile := pathHasFile(filepath.Base(path)); isFile {
+			_, err := os.Stat(getPathToFile(path))
+			if err != nil {
+				os.Mkdir(getPathToFile(path), fs.ModeDir)
+				return false
+			}
 			return false
 		} else if !isFile {
 			os.Mkdir(path, fs.ModeDir)
