@@ -3,7 +3,7 @@
 
 ## Installation steps
 1. Clone the repository **or** download the .exe
-2. Wherever the .exe is located, on your system, add it's containing folder to your 'path' environment variable (if it's at C:/Downloads/imgc.exe, just add C:/Downloads to your path)
+2. Wherever the .exe is located, on your system, add it's containing folder to your 'path' environment variable (if it's at **C:/Downloads/imgc.exe**, just add **C:/Downloads** to your path)
 
 ## Usage examples
 #### Without output flag (saves to same directory where image is currently located)
