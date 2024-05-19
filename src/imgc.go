@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -40,9 +41,14 @@ func isDir(path string) bool {
 
 	stat, err := os.Stat(path)
 	if err != nil {
-		log.SetFlags(0)
-		log.Fatal(err)
+		if strings.Contains(filepath.Base(path), ".") {
+			return false
+		} else {
+			os.Mkdir(path, fs.ModeDir)
+			return true
+		}
 	}
+
 	if stat.IsDir() {
 		return true
 	} else {
@@ -59,7 +65,7 @@ func getDecodedImage(path string) image.Image {
 	src, err := imgconv.Open(path)
 	if err != nil {
 		log.SetFlags(0)
-		log.Fatal("Error: Could not save image, make sure you aren't using single backslashes in the filepath.")
+		log.Fatal("Error: Could not save image, double check filepath (make sure you aren't using single backslashes).")
 	}
 
 	return src
@@ -67,14 +73,20 @@ func getDecodedImage(path string) image.Image {
 
 func convertImage(path, desiredFormat, output string) {
 	imgData := getDecodedImage(path)
+	conversionFilename := filepath.Base(getFilenameNoExt(path)) + "." + desiredFormat
 
 	if output == "" {
 		if strings.Contains(path, `\`) || strings.Contains(path, "/") {
 			output = getPathToFile(path)
 		}
+	} else {
+		if !isDir(output) {
+			conversionFilename = filepath.Base(output)
+			output = getPathToFile(output)
+		}
 	}
 
-	newFilename := filepath.Join(output, filepath.Base(getFilenameNoExt(path))+"."+desiredFormat)
+	newFilename := filepath.Join(output, conversionFilename)
 	desiredFormatAsFormat, err := imgconv.FormatFromExtension(desiredFormat)
 
 	if err != nil {
@@ -98,12 +110,12 @@ func main() {
 		Authors: []*cli.Author{
 			{Name: "Brayden O'Neil", Email: "oneilb123@gmail.com"},
 		},
-		Usage: "imgc conv [--image or -i] filepath [--to or -t] format",
+		Usage: "format",
 		Commands: []*cli.Command{
 			{
 				Name:    "conv",
 				Aliases: []string{"c"},
-				Usage:   "conv [--image or -i] filepath [--to or -t] format",
+				Usage:   "conv [--image or -i] filepath [--to or -t] format [--output or -o (optional)] outputpath",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:    "image",
@@ -119,7 +131,7 @@ func main() {
 						Name:    "output",
 						Aliases: []string{"o"},
 						Value:   "",
-						Usage:   "The desired output path. Set to the same directory as the image by default",
+						Usage:   "The desired output path. Set to the same directory as the image by default.",
 					},
 				},
 				Action: func(c *cli.Context) error {
