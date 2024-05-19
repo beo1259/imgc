@@ -13,7 +13,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func hasFilePath(path string) bool {
+func pathHasFile(path string) bool {
 	return strings.Contains(path, ".")
 }
 
@@ -41,9 +41,9 @@ func isDir(path string) bool {
 
 	stat, err := os.Stat(path)
 	if err != nil {
-		if hasDot := strings.Contains(filepath.Base(path), "."); hasDot {
+		if isFile := pathHasFile(filepath.Base(path)); isFile {
 			return false
-		} else if !hasDot {
+		} else if !isFile {
 			os.Mkdir(path, fs.ModeDir)
 			return true
 		} else {
@@ -60,7 +60,7 @@ func isDir(path string) bool {
 }
 
 func getDecodedImage(path string) image.Image {
-	if !hasFilePath(filepath.Base(path)) {
+	if !pathHasFile(filepath.Base(path)) {
 		log.SetFlags(0)
 		log.Fatal("Error: Make sure you include the full filename (including extension).")
 	}
